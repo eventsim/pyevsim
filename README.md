@@ -1,2 +1,3 @@
 # evsim
-Discrete Event Simulation Engine
+Discrete Event Simulation Engine using Python
+
