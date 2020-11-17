@@ -7,6 +7,9 @@ class SysMessage(SysObject):
         self._src = src_name
         self._dst = dst_name
         self._msg_list = []
+    def __str__(self):
+        return super(SysMessage, self).__str__() + \
+                f"\tSRC:{self._src}\t DST:{self._dst}"
 
     def insert(self, msg):
         self._msg_list.append(msg)
