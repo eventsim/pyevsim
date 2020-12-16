@@ -16,6 +16,7 @@ from evsim.system_object import *
 
 import functools
 import operator
+import math
 
 class SysExecutor(SysObject, BehaviorModel):
 
@@ -164,7 +165,11 @@ class SysExecutor(SysObject, BehaviorModel):
                 # Receiver Scheduling
                 # wrong : destination[0].set_req_time(self.global_time + destination[0].time_advance())
                 self.min_schedule_item.remove(destination[0])
-                destination[0].set_req_time(self.global_time)
+                if obj :
+                    destination[0].set_req_time(obj.get_req_time())
+                else:
+                    destination[0].set_req_time(self.global_time)
+
                 self.min_schedule_item.append(destination[0])
                 #self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
                 # self.min_schedule_item.pop()
@@ -269,17 +274,21 @@ class SysExecutor(SysObject, BehaviorModel):
         tuple_obj = self.min_schedule_item.popleft()
 
         before = time.perf_counter() # TODO: consider decorator
-        while tuple_obj.get_req_time() <= self.global_time:
+
+        while math.isclose(tuple_obj.get_req_time(), self.global_time, rel_tol=1e-9):
+            req_t = tuple_obj.get_req_time()
             msg = tuple_obj.output()
-            if msg is not None:
+            if msg is not None: 
                 self.output_handling(tuple_obj, msg)
 
             # Sender Scheduling
             tuple_obj.int_trans()
-            tuple_obj.set_req_time(self.global_time)
+
+            tuple_obj.set_req_time(req_t)
             self.min_schedule_item.append(tuple_obj)
 
             self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
+            
             tuple_obj = self.min_schedule_item.popleft()
 
         self.min_schedule_item.appendleft(tuple_obj)
