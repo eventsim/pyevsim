@@ -8,6 +8,7 @@ import heapq
 import copy
 import time
 import datetime
+import threading
 
 from definition import *
 from default_message_catcher import *
@@ -25,7 +26,9 @@ class SysExecutor(SysObject, BehaviorModel):
 
     def __init__(self, _time_step, _sim_name='default', _sim_mode='VIRTUAL_TIME'):
         BehaviorModel.__init__(self, _sim_name)
-    
+        self.lock = threading.Lock()
+        self.thread_flag = False
+
         self.global_time = 0
         self.target_time = 0
         self.time_step = _time_step  # time_step may changed? - cbchoi
@@ -164,14 +167,21 @@ class SysExecutor(SysObject, BehaviorModel):
                 destination[0].ext_trans(destination[1], msg[1])
                 # Receiver Scheduling
                 # wrong : destination[0].set_req_time(self.global_time + destination[0].time_advance())
-                self.min_schedule_item.remove(destination[0])
+                #self.lock.acquire()
+
+                while self.thread_flag:
+                    time.sleep(0.001)
+
+                self.thread_flag = True
+                #self.min_schedule_item.remove(destination[0])
+                #self.lock.release()
                 #if obj :
                 #    destination[0].set_req_time(obj.get_req_time())
                 #else:
                 #    destination[0].set_req_time(self.global_time)
                 destination[0].set_req_time(self.global_time)
-                
-                self.min_schedule_item.append(destination[0])
+                #self.min_schedule_item.append(destination[0])
+                self.thread_flag = False
                 #self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
                 # self.min_schedule_item.pop()
                 # self.min_schedule_item.append((destination[0].time_advance() + self.global_time, destination[0]))
