@@ -1,7 +1,7 @@
-from evsim.system_object import SysObject
+from system_object import SysObject
 from abc import abstractmethod
-from evsim.behavior_model import BehaviorModel
-from evsim.definition import *
+from behavior_model import BehaviorModel
+from definition import *
 
 class BehaviorModelExecutor(SysObject, BehaviorModel):
     def __init__(self, instantiate_time=Infinite, destruct_time=Infinite, name=".", engine_name="default"):
@@ -19,8 +19,14 @@ class BehaviorModelExecutor(SysObject, BehaviorModel):
         self.RequestedTime = float("inf")
         self._not_available = None
 
+        # 2021.10.16 cbchoi
+        self._cancel_reschedule_f = False
+
     def __str__(self):
         return "[N]:{0}, [S]:{1}".format(self.get_name(), self._cur_state)
+
+    def cancel_rescheduling(self):
+        self._cancel_reschedule_f = True
 
     def get_engine_name(self):
         return self.engine_name
@@ -57,17 +63,25 @@ class BehaviorModelExecutor(SysObject, BehaviorModel):
         pass
 
     # Time Advanced Function
-    def time_advance(self):
-        if self._cur_state in self._states:
+    def time_advance(self):       
+        if self._cur_state in self._states:    
             return self._states[self._cur_state]
         else:
             return -1
 
-    def set_req_time(self, global_time):
+    def set_req_time(self, global_time, elapsed_time=0):
         if self.time_advance() == Infinite:
+            self._next_event_t = Infinite
             self.RequestedTime = Infinite
         else:
-            self.RequestedTime = global_time + self.time_advance()
+            if self._cancel_reschedule_f:
+                self.RequestedTime = min(self._next_event_t, global_time + self.time_advance())
+            else:
+                self.RequestedTime = global_time + self.time_advance()
 
-    def get_req_time(self):
+    def get_req_time(self):    
+        if self._cancel_reschedule_f:
+            self._cancel_reschedule_f = False
+        self._next_event_t = self.RequestedTime
+        #print(f"{self.get_name()}: {self._next_event_t}")
         return self.RequestedTime

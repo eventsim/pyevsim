@@ -1,5 +1,5 @@
-from evsim.system_executor import SysExecutor
-from evsim.definition import SingletonType
+from system_executor import SysExecutor
+from definition import SingletonType
 
 class SystemSimulator(object):
     __metaclass__ = SingletonType

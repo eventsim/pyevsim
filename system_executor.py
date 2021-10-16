@@ -9,10 +9,10 @@ import copy
 import time
 import datetime
 
-from evsim.definition import *
-from evsim.default_message_catcher import *
-from evsim.behavior_model import *
-from evsim.system_object import *
+from definition import *
+from default_message_catcher import *
+from behavior_model import *
+from system_object import *
 
 import functools
 import operator
@@ -25,7 +25,7 @@ class SysExecutor(SysObject, BehaviorModel):
 
     def __init__(self, _time_step, _sim_name='default', _sim_mode='VIRTUAL_TIME'):
         BehaviorModel.__init__(self, _sim_name)
-
+    
         self.global_time = 0
         self.target_time = 0
         self.time_step = _time_step  # time_step may changed? - cbchoi
@@ -145,7 +145,7 @@ class SysExecutor(SysObject, BehaviorModel):
     '''
 
     def single_output_handling(self, obj, msg):
-        pair = (obj, msg.get_dst())
+        pair = (obj, msg[1].get_dst())
 
         if pair not in self.port_map:
             self.port_map[pair] = [(self.active_obj_map[self.dmc.get_obj_id()], "uncaught")]
@@ -158,18 +158,19 @@ class SysExecutor(SysObject, BehaviorModel):
                 raise AssertionError
 
             if destination[0] is None:
-                self.output_event_queue.append((self.global_time, msg.retrieve()))
+                self.output_event_queue.append((self.global_time, msg[1].retrieve()))
             else:
                 # Receiver Message Handling
-                destination[0].ext_trans(destination[1], msg)
+                destination[0].ext_trans(destination[1], msg[1])
                 # Receiver Scheduling
                 # wrong : destination[0].set_req_time(self.global_time + destination[0].time_advance())
                 self.min_schedule_item.remove(destination[0])
-                if obj :
-                    destination[0].set_req_time(obj.get_req_time())
-                else:
-                    destination[0].set_req_time(self.global_time)
-
+                #if obj :
+                #    destination[0].set_req_time(obj.get_req_time())
+                #else:
+                #    destination[0].set_req_time(self.global_time)
+                destination[0].set_req_time(self.global_time)
+                
                 self.min_schedule_item.append(destination[0])
                 #self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
                 # self.min_schedule_item.pop()
@@ -179,7 +180,7 @@ class SysExecutor(SysObject, BehaviorModel):
         if msg is not None:
             if type(msg) == list:
                 for ith_msg in msg:
-                    self.single_output_handling(obj, ith_msg)
+                    self.single_output_handling(obj, copy.deepcopy(ith_msg))
             else:
                 self.single_output_handling(obj, msg)
                 
@@ -276,13 +277,13 @@ class SysExecutor(SysObject, BehaviorModel):
         before = time.perf_counter() # TODO: consider decorator
 
         while math.isclose(tuple_obj.get_req_time(), self.global_time, rel_tol=1e-9):
-            req_t = tuple_obj.get_req_time()
             msg = tuple_obj.output()
             if msg is not None: 
-                self.output_handling(tuple_obj, msg)
-
+                self.output_handling(tuple_obj, (self.global_time, msg))
+            
             # Sender Scheduling
             tuple_obj.int_trans()
+            req_t = tuple_obj.get_req_time()
 
             tuple_obj.set_req_time(req_t)
             self.min_schedule_item.append(tuple_obj)
@@ -293,12 +294,13 @@ class SysExecutor(SysObject, BehaviorModel):
 
         self.min_schedule_item.appendleft(tuple_obj)
 
-        # update Global Time
-        self.global_time += self.time_step
-
         after = time.perf_counter()
         if self.sim_mode == "REAL_TIME":
             time.sleep((lambda x: x if x > 0 else 0)(float(self.time_step) - float(after-before)))
+
+        # update Global Time
+        self.global_time += self.time_step
+
         # Agent Deletion
         self.destroy_entity()
 
@@ -337,7 +339,7 @@ class SysExecutor(SysObject, BehaviorModel):
 
 #        self.eval_time = 0
         self.dmc = DefaultMessageCatcher(0, Infinite, "dc", "default")
-        self.register_entity(dmc)
+        self.register_entity(self.dmc)
 
     # External Event Handling - by cbchoi
     def insert_external_event(self, _port, _msg, scheduled_time=0):
@@ -372,7 +374,7 @@ class SysExecutor(SysObject, BehaviorModel):
     def handle_external_input_event(self):
         event_list = [ev for ev in self.input_event_queue if ev[0] <= self.global_time]
         for event in event_list:
-            self.output_handling(None, event[1])
+            self.output_handling(None, event)
             heapq.heappop(self.input_event_queue)
 
         self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))

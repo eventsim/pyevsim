@@ -1,4 +1,4 @@
-from evsim.definition import SingletonType
+from definition import SingletonType
 
 class NetworkManager(object):
 	__metaclass__ = SingletonType

@@ -1,4 +1,4 @@
-from evsim.definition import CoreModel, ModelType
+from definition import CoreModel, ModelType
 from collections import OrderedDict
 
 class StructuralModel(CoreModel):
