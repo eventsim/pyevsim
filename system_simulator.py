@@ -1,5 +1,6 @@
 from system_executor import SysExecutor
 from definition import SingletonType
+from threading import Thread
 
 class SystemSimulator(object):
     __metaclass__ = SingletonType
@@ -42,6 +43,14 @@ class SystemSimulator(object):
             SystemSimulator._engine[sim_instance.get_name()] = sim_instance
             sim_instance.simulate()
         pass
+    
+    @staticmethod
+    def exec_non_block_simulate(sim_list):
+        for sim_name in sim_list:
+            sim_inst = SystemSimulator._engine[sim_name]
+            p = Thread(target=sim_inst.simulate, args=())
+            p.start()
+            #p.join()
 
     def __init__(self):
         pass
