@@ -280,7 +280,7 @@ class SysExecutor(SysObject, BehaviorModel):
     def schedule(self):
         # Agent Creation
         self.create_entity()
-        self.handle_external_input_event()
+        #self.handle_external_input_event()
 
         tuple_obj = self.min_schedule_item.popleft()
 
@@ -357,8 +357,10 @@ class SysExecutor(SysObject, BehaviorModel):
         sm.insert(_msg)
 
         if _port in self._input_ports:
+            self.lock.acquire()
             heapq.heappush(self.input_event_queue, (scheduled_time + self.global_time, sm))
-            if self.simulation_mode != SimulationMode.SIMULATION_IDLE:
+            self.lock.release()
+            if self.simulation_mode != SimulationMode.SIMULATION_IDLE and self.input_event_queue:
                 self.handle_external_input_event()
         else:
             # TODO Exception Handling
@@ -370,8 +372,10 @@ class SysExecutor(SysObject, BehaviorModel):
         sm.extend(_bodylist)
 
         if _port in self._input_ports:
+            self.lock.acquire()
             heapq.heappush(self.input_event_queue, (scheduled_time + self.global_time, sm))
-            if self.simulation_mode != SimulationMode.SIMULATION_IDLE:
+            self.lock.release()
+            if self.simulation_mode != SimulationMode.SIMULATION_IDLE and self.input_event_queue:
                 self.handle_external_input_event()
         else:
             # TODO Exception Handling
@@ -383,10 +387,13 @@ class SysExecutor(SysObject, BehaviorModel):
 
     def handle_external_input_event(self):
         event_list = [ev for ev in self.input_event_queue if ev[0] <= self.global_time]
+        print(event_list)
         for event in event_list:
             self.output_handling(None, event)
+            self.lock.acquire()
             heapq.heappop(self.input_event_queue)
-
+            self.lock.release()
+            
         self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
         pass
 

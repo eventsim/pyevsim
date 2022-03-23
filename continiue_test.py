@@ -11,7 +11,7 @@ class Keyboard(BehaviorModelExecutor):
         BehaviorModelExecutor.__init__(self, instance_time, destruct_time, name, engine_name)
 
         self.init_state("WAIT")
-        self.insert_state("WAIT", Infinite)
+        self.insert_state("WAIT", 0.01)
 
         self.insert_input_port("key")
 
@@ -22,6 +22,7 @@ class Keyboard(BehaviorModelExecutor):
         pass
 
     def output(self):
+        #print("1")
         return None
         
     def int_trans(self):
@@ -91,14 +92,14 @@ class Processor(BehaviorModelExecutor):
 # System Simulator Initialization
 se = SystemSimulator()
 
-se.register_engine("sname", "REAL_TIME", 0.5)
+se.register_engine("sname", "REAL_TIME", 0.01)
 
 k = Keyboard(0, Infinite, "key", "sname")
 se.get_engine("sname").insert_input_port("key")
 se.get_engine("sname").register_entity(k)
 se.get_engine("sname").coupling_relation(None, "key", k, "key")
 
-se.register_engine("sname2", "REAL_TIME", 0.5)
+se.register_engine("sname2", "REAL_TIME", 0.01)
 se.get_engine("sname2").insert_input_port("start")
 
 gen = Generator(0, Infinite, "Gen", "sname")
@@ -115,10 +116,9 @@ print("DD")
 se.exec_non_block_simulate(["sname", "sname2"])
 se.get_engine("sname2").insert_external_event("start", None)
 
-'''
-def key_press(key):
-    print(f"'{key}' pressed")
-    se.get_engine("sname").insert_external_event("key", key)
 
-listen_keyboard(on_press=key_press)
-'''
+#def key_press(key):
+#    print(f"'{key}' pressed")
+#    se.get_engine("sname").insert_external_event("key", key)
+
+#listen_keyboard(on_press=key_press)
