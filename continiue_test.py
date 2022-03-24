@@ -4,25 +4,26 @@ from system_message import SysMessage
 from definition import *
 import datetime
 
-#from sshkeyboard import listen_keyboard
+from sshkeyboard import listen_keyboard
 
 class Keyboard(BehaviorModelExecutor):
     def __init__(self, instance_time, destruct_time, name, engine_name):
         BehaviorModelExecutor.__init__(self, instance_time, destruct_time, name, engine_name)
 
         self.init_state("WAIT")
-        self.insert_state("WAIT", 0.01)
+        self.insert_state("WAIT", 0.5)
 
         self.insert_input_port("key")
 
     def ext_trans(self, port, msg):
         if port == "key":
             data = msg.retrieve()
-            print(data[0])
+            print(f"{data[0]}!!!")
+        self.cancel_rescheduling()
         pass
 
     def output(self):
-        #print("1")
+        print("1")
         return None
         
     def int_trans(self):
@@ -117,8 +118,8 @@ se.exec_non_block_simulate(["sname", "sname2"])
 se.get_engine("sname2").insert_external_event("start", None)
 
 
-#def key_press(key):
-#    print(f"'{key}' pressed")
-#    se.get_engine("sname").insert_external_event("key", key)
+def key_press(key):
+    print(f"'{key}' pressed")
+    se.get_engine("sname").insert_external_event("key", key)
 
-#listen_keyboard(on_press=key_press)
+listen_keyboard(on_press=key_press)

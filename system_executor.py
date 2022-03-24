@@ -280,7 +280,7 @@ class SysExecutor(SysObject, BehaviorModel):
     def schedule(self):
         # Agent Creation
         self.create_entity()
-        #self.handle_external_input_event()
+        self.handle_external_input_event()
 
         tuple_obj = self.min_schedule_item.popleft()
 
@@ -360,8 +360,8 @@ class SysExecutor(SysObject, BehaviorModel):
             self.lock.acquire()
             heapq.heappush(self.input_event_queue, (scheduled_time + self.global_time, sm))
             self.lock.release()
-            if self.simulation_mode != SimulationMode.SIMULATION_IDLE and self.input_event_queue:
-                self.handle_external_input_event()
+            #if self.simulation_mode != SimulationMode.SIMULATION_IDLE and self.input_event_queue:
+            #    self.handle_external_input_event()
         else:
             # TODO Exception Handling
             print("[ERROR][INSERT_EXTERNAL_EVNT] Port Not Found")
@@ -375,8 +375,8 @@ class SysExecutor(SysObject, BehaviorModel):
             self.lock.acquire()
             heapq.heappush(self.input_event_queue, (scheduled_time + self.global_time, sm))
             self.lock.release()
-            if self.simulation_mode != SimulationMode.SIMULATION_IDLE and self.input_event_queue:
-                self.handle_external_input_event()
+            #if self.simulation_mode != SimulationMode.SIMULATION_IDLE and self.input_event_queue:
+            #    self.handle_external_input_event()
         else:
             # TODO Exception Handling
             print("[ERROR][INSERT_EXTERNAL_EVNT] Port Not Found")
