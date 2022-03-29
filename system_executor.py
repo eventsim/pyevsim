@@ -387,7 +387,7 @@ class SysExecutor(SysObject, BehaviorModel):
 
     def handle_external_input_event(self):
         event_list = [ev for ev in self.input_event_queue if ev[0] <= self.global_time]
-        print(event_list)
+        #print(event_list)
         for event in event_list:
             self.output_handling(None, event)
             self.lock.acquire()
