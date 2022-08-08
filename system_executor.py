@@ -43,6 +43,9 @@ class SysExecutor(SysObject, BehaviorModel):
         # added by cbchoi 2020.01.20
         self.hierarchical_structure = {}
 
+        # added by cbchoi 2022.08.06
+        self.model_map = {}
+
         self.min_schedule_item = deque()
 
         self.sim_init_time = datetime.datetime.now()
@@ -73,6 +76,40 @@ class SysExecutor(SysObject, BehaviorModel):
             self.waiting_obj_map[sim_obj.get_create_time()] = list()
 
         self.waiting_obj_map[sim_obj.get_create_time()].append(sim_obj)
+        
+        # added by cbchoi 2022.08.06
+        if sim_obj.get_name() in self.model_map:
+            self.model_map[sim_obj.get_name()].append(sim_obj)
+        else:
+            self.model_map[sim_obj.get_name()] = [sim_obj]
+
+    # added by cbchoi 2022.08.06
+    def get_entity(self, model_name):
+        if model_name in self.model_map:
+            return self.model_map[model_name]
+        else:
+            return []
+    
+    def remove_entity(self, model_name):
+        if model_name in self.model_map:
+            for agent in self.model_map[model_name]:
+                del(self.active_obj_map[agent.get_obj_id()])
+                
+                port_del_lst = []
+                for key, value in self.port_map.items():
+                    #print(value)
+                    if value:
+                        if value[0][0] is agent:
+                            port_del_lst.append(key)
+
+                for key in port_del_lst:
+                    del(self.port_map[key])
+
+                self.min_schedule_item.remove(agent)
+                print("deleted")
+                del(self.model_map[model_name])
+        else:
+            return None
 
     def create_entity(self):
         if len(self.waiting_obj_map.keys()) != 0:
