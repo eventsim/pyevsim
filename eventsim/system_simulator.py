@@ -1,9 +1,8 @@
-from system_executor import SysExecutor
-from definition import *
-from definition import SingletonType
+from .system_executor import SysExecutor
+from .definition import SingletonType
 from threading import Thread
 
-from termination_manager import TerminationManager
+from .termination_manager import TerminationManager
 
 class SystemSimulator(object):
     __metaclass__ = SingletonType

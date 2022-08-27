@@ -1,7 +1,6 @@
-# from system_executor.system_simulator import *
-from behavior_model_executor import BehaviorModelExecutor
-from system_message import SysMessage
-from definition import *
+from .behavior_model_executor import BehaviorModelExecutor
+from .system_message import SysMessage
+from .definition import *
 
 class DefaultMessageCatcher(BehaviorModelExecutor):
     def __init__(self, instance_time, destruct_time, name, engine_name):

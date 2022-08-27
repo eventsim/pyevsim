@@ -10,16 +10,16 @@ import time
 import datetime
 import threading
 
-from definition import *
-from default_message_catcher import *
-from behavior_model import *
-from system_object import *
+from .definition import *
+from .default_message_catcher import *
+from .behavior_model import *
+from .system_object import *
 
 import functools
 import operator
 import math
 
-from termination_manager import TerminationManager
+from .termination_manager import TerminationManager
 
 class SysExecutor(SysObject, BehaviorModel):
 
@@ -73,7 +73,6 @@ class SysExecutor(SysObject, BehaviorModel):
         return self.global_time
 
     def register_entity(self, sim_obj):
-        #print((sim_obj,))
         if not sim_obj.get_create_time() in self.waiting_obj_map:
             self.waiting_obj_map[sim_obj.get_create_time()] = list()
 
@@ -99,7 +98,6 @@ class SysExecutor(SysObject, BehaviorModel):
                 
                 port_del_lst = []
                 for key, value in self.port_map.items():
-                    #print(value)
                     if value:
                         if value[0][0] is agent:
                             port_del_lst.append(key)
@@ -119,9 +117,7 @@ class SysExecutor(SysObject, BehaviorModel):
             if key <= self.global_time:
                 lst = self.waiting_obj_map[key]
                 for obj in lst:
-                    # print("global:",self.global_time," create agent:", obj.get_obj_name())
                     self.active_obj_map[obj.get_obj_id()] = obj
-                    # self.min_schedule_item.append((obj.time_advance() + self.global_time, obj))
                     obj.set_req_time(self.global_time)
                     self.min_schedule_item.append(obj)
                 del self.waiting_obj_map[key]
@@ -137,7 +133,6 @@ class SysExecutor(SysObject, BehaviorModel):
                     delete_lst.append(agent)
 
             for agent in delete_lst:
-                #print("global:",self.global_time," del agent:", agent.get_name())
                 del(self.active_obj_map[agent.get_obj_id()])
                 
                 port_del_lst = []
@@ -156,35 +151,12 @@ class SysExecutor(SysObject, BehaviorModel):
             self.port_map[(src_obj, out_port)].append((dst_obj, in_port))
         else:
             self.port_map[(src_obj, out_port)] = [(dst_obj, in_port)]
-            # self.port_map_wName.append((src_obj.get_name(), out_port, dst_obj.get_name(), in_port))
 
     def _coupling_relation(self, src, dst):
         if src in self.port_map:
             self.port_map[src].append(dst)
         else:
             self.port_map[src] = [dst]
-            # self.port_map_wName.append((src_obj.get_name(), out_port, dst_obj.get_name(), in_port))
-
-    '''
-    def update_coupling_relation(self):
-        self.port_map.clear()
-
-        for i in range(len(self.port_map_wName)):
-            src_obj_name = self.port_map_wName[i][0]
-            src_obj = None
-            # find loaded obj with name
-            for q in range(len(self.min_schedule_item)):
-                if self.min_schedule_item[q].get_name() == src_obj_name:
-                    src_obj = self.min_schedule_item[q]
-            out_port = self.port_map_wName[i][1]
-            dst_obj_name = self.port_map_wName[i][2]
-            dst_obj = None
-            for q in range(len(self.min_schedule_item)):
-                if self.min_schedule_item[q].get_name() == dst_obj_name:
-                    dst_obj = self.min_schedule_item[q]
-            in_port = self.port_map_wName[i][3]
-            self.port_map[(src_obj, out_port)] = (dst_obj, in_port)
-    '''
 
     def single_output_handling(self, obj, msg):
         pair = (obj, msg[1].get_dst())
@@ -206,24 +178,11 @@ class SysExecutor(SysObject, BehaviorModel):
                 destination[0].ext_trans(destination[1], msg[1])
                 # Receiver Scheduling
                 # wrong : destination[0].set_req_time(self.global_time + destination[0].time_advance())
-                #self.lock.acquire()
 
                 while self.thread_flag:
                     time.sleep(0.001)
 
-                self.thread_flag = True
-                #self.min_schedule_item.remove(destination[0])
-                #self.lock.release()
-                #if obj :
-                #    destination[0].set_req_time(obj.get_req_time())
-                #else:
-                #    destination[0].set_req_time(self.global_time)
                 destination[0].set_req_time(self.global_time)
-                #self.min_schedule_item.append(destination[0])
-                self.thread_flag = False
-                #self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
-                # self.min_schedule_item.pop()
-                # self.min_schedule_item.append((destination[0].time_advance() + self.global_time, destination[0]))
 
     def output_handling(self, obj, msg):
         if msg is not None:
@@ -236,19 +195,11 @@ class SysExecutor(SysObject, BehaviorModel):
 
     def flattening(self, _model, _del_model, _del_coupling):
         # handle external output coupling
-#        print(_model, _model.retrieve_external_output_coupling())
- #       print(1, _del_coupling)
         for k, v in _model.retrieve_external_output_coupling().items():
             if v in self.port_map:
                 for coupling in self.port_map[v]:
-                    #print (self.port_map[v])
-                    #print (k,coupling)
                     self._coupling_relation(k, coupling)
                     _del_coupling.append((v,coupling))
- #       print(2, _del_coupling)
- #       for item in del_lst:
- #           if item in self.port_map:
- #               del self.port_map[item]
         
         # handle external input coupling
         for k, v in _model.retrieve_external_input_coupling().items():
@@ -270,25 +221,19 @@ class SysExecutor(SysObject, BehaviorModel):
             if m.get_type() == ModelType.STRUCTURAL:
                 self.flattening(m, _del_model, _del_coupling)
             else:
-                #print((m,))
                 self.register_entity(m)
 
         for k, model_lst in self.waiting_obj_map.items():
             if _model in model_lst:
                 _del_model.append((k, _model))
 
-#        for target in del_lst:
-            #print(del_lst)
-#            self.waiting_obj_map[target[0]].remove(target[1])
-
     def init_sim(self):
         self.simulation_mode = SimulationMode.SIMULATION_RUNNING
 
-        # Flattening\
+        # Flattening
         _del_model = []
         _del_coupling = []
         for model_lst in self.waiting_obj_map.values():
-            #print(model_lst)
             for model in model_lst:
                 if model.get_type() == ModelType.STRUCTURAL:
                     self.flattening(model, _del_model, _del_coupling)
@@ -297,7 +242,6 @@ class SysExecutor(SysObject, BehaviorModel):
             if _model in self.waiting_obj_map[target]:
                 self.waiting_obj_map[target].remove(_model)
 
-        #print(self.port_map)
         for target, _model in _del_coupling:
             if _model in self.port_map[target]:
                 self.port_map[target].remove(_model)
@@ -384,13 +328,11 @@ class SysExecutor(SysObject, BehaviorModel):
         self.active_obj_map = {}
         # dictionary for object to ports
         self.port_map = {}
-        # self.port_map_wName = []
 
         self.min_schedule_item = deque()
 
         self.sim_init_time = datetime.datetime.now()
 
-#        self.eval_time = 0
         self.dmc = DefaultMessageCatcher(0, Infinite, "dc", "default")
         self.register_entity(self.dmc)
 
@@ -403,8 +345,6 @@ class SysExecutor(SysObject, BehaviorModel):
             self.lock.acquire()
             heapq.heappush(self.input_event_queue, (scheduled_time + self.global_time, sm))
             self.lock.release()
-            #if self.simulation_mode != SimulationMode.SIMULATION_IDLE and self.input_event_queue:
-            #    self.handle_external_input_event()
         else:
             # TODO Exception Handling
             print("[ERROR][INSERT_EXTERNAL_EVNT] Port Not Found")
@@ -418,8 +358,6 @@ class SysExecutor(SysObject, BehaviorModel):
             self.lock.acquire()
             heapq.heappush(self.input_event_queue, (scheduled_time + self.global_time, sm))
             self.lock.release()
-            #if self.simulation_mode != SimulationMode.SIMULATION_IDLE and self.input_event_queue:
-            #    self.handle_external_input_event()
         else:
             # TODO Exception Handling
             print("[ERROR][INSERT_EXTERNAL_EVNT] Port Not Found")
@@ -430,7 +368,6 @@ class SysExecutor(SysObject, BehaviorModel):
 
     def handle_external_input_event(self):
         event_list = [ev for ev in self.input_event_queue if ev[0] <= self.global_time]
-        #print(event_list)
         for event in event_list:
             self.output_handling(None, event)
             self.lock.acquire()

@@ -1,5 +1,3 @@
-#from peter import *
-#from peter import *
 import datetime
 
 class SysObject(object):
