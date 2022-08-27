@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from definition import CoreModel, ModelType
+from .definition import CoreModel, ModelType
 
 class BehaviorModel(CoreModel):
     def __init__(self, _name=""):

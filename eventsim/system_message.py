@@ -1,4 +1,4 @@
-from system_object import  SysObject
+from .system_object import  SysObject
 
 
 class SysMessage(SysObject):
