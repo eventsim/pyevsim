@@ -1,6 +1,9 @@
 from system_executor import SysExecutor
+from definition import *
 from definition import SingletonType
 from threading import Thread
+
+from termination_manager import TerminationManager
 
 class SystemSimulator(object):
     __metaclass__ = SingletonType
@@ -23,35 +26,28 @@ class SystemSimulator(object):
         return SystemSimulator._engine[sim_name].is_terminated()
 
     @staticmethod
-    def set_learning_module(sim_name, learn_module):
-        SystemSimulator._engine[sim_name].set_learning_module(learn_module)
-        pass
-
-    @staticmethod
-    def get_learning_module(sim_name):
-        return SystemSimulator._engine[sim_name].get_learning_module()
-
-    @staticmethod
     def is_terminated(sim_name):
         return SystemSimulator._engine[sim_name].is_terminated()
-
-    @staticmethod
-    def exec_simulation_instance(instance_path):
-        sim_instance = None
-        with open(instance_path, 'rb') as f:
-            sim_instance = dill.load(f)
-            SystemSimulator._engine[sim_instance.get_name()] = sim_instance
-            sim_instance.simulate()
-        pass
     
-    @staticmethod
-    def exec_non_block_simulate(sim_list):
+    def exec_non_block_simulate(self, sim_list):
+        self.thread_list = []
         for sim_name in sim_list:
             sim_inst = SystemSimulator._engine[sim_name]
-            p = Thread(target=sim_inst.simulate, args=())
+            p = Thread(target=sim_inst.simulate, args=(Infinite, False), daemon=True)
+            self.thread_list.append(p)
             p.start()
+            
             #p.join()
 
+    def block(self):
+        self.tm = TerminationManager()
+
+        for t in self.thread_list:
+            while t.is_alive():
+                t.join(1)
+    
     def __init__(self):
         pass
+
+
 

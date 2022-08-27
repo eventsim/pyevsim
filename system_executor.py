@@ -19,6 +19,8 @@ import functools
 import operator
 import math
 
+from termination_manager import TerminationManager
+
 class SysExecutor(SysObject, BehaviorModel):
 
     EXTERNAL_SRC = "SRC"
@@ -352,7 +354,10 @@ class SysExecutor(SysObject, BehaviorModel):
         self.destroy_entity()
 
 
-    def simulate(self, _time=Infinite):
+    def simulate(self, _time=Infinite, _tm=True):
+        if _tm:
+            self.tm = TerminationManager()
+
         # Termination Condition
         self.target_time = self.global_time + _time
 
@@ -368,6 +373,7 @@ class SysExecutor(SysObject, BehaviorModel):
             self.schedule()
 
     def simulation_stop(self):
+        # may buggy?
         self.global_time = 0
         self.target_time = 0
         self.time_step = 1  # time_step may changed? - cbchoi
@@ -441,10 +447,3 @@ class SysExecutor(SysObject, BehaviorModel):
 
     def is_terminated(self):
         return self.simulation_mode == SimulationMode.SIMULATION_TERMINATED
-
-    def set_learning_module(self, learn_module):
-        self.learn_module = learn_module
-        pass
-
-    def get_learning_module(self):
-        return self.learn_module
