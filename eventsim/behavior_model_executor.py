@@ -1,7 +1,7 @@
-from system_object import SysObject
+from .system_object import SysObject
 from abc import abstractmethod
-from behavior_model import BehaviorModel
-from definition import *
+from .behavior_model import BehaviorModel
+from .definition import *
 
 class BehaviorModelExecutor(SysObject, BehaviorModel):
     def __init__(self, instantiate_time=Infinite, destruct_time=Infinite, name=".", engine_name="default"):
@@ -12,10 +12,6 @@ class BehaviorModelExecutor(SysObject, BehaviorModel):
         self._destruct_t = destruct_time
         self._next_event_t = 0
         self._cur_state = ""
-        # self._state_lst = []
-        #self._time_map = {}
-        # self._in_port_lst = []
-        # self._out_port_lst = []
         self.RequestedTime = float("inf")
         self._not_available = None
 
@@ -83,5 +79,4 @@ class BehaviorModelExecutor(SysObject, BehaviorModel):
         if self._cancel_reschedule_f:
             self._cancel_reschedule_f = False
         self._next_event_t = self.RequestedTime
-        #print(f"{self.get_name()}: {self._next_event_t}")
         return self.RequestedTime

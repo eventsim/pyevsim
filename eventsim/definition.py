@@ -11,8 +11,6 @@ class AttributeType(Enum):
 
     @staticmethod
     def resolve_type_from_str(name):
-        # if "BEHAVIOR" == name.upper():
-        #    return AttributeType.BEHAVIOR
         if "ASPECT" == name.upper():
             return AttributeType.ASPECT
         elif "RUNTIME" == name.upper():
@@ -22,15 +20,12 @@ class AttributeType(Enum):
 
     @staticmethod
     def resolve_type_from_enum(enum):
-        # if enum == AttributeType.BEHAVIOR:
-        #    return "BEHAVIOR"
         if enum == AttributeType.ASPECT:
             return "ASPECT"
         elif enum == AttributeType.RUNTIME:
             return "RUNTIME"
         else:
             return "UNKNOWN"
-
 
 # 2019.05.16 added by cbchoi
 class SimulationMode(Enum):
@@ -73,8 +68,6 @@ class CoreModel(object):
 
     def retrieve_output_ports(self):
         return self._output_ports
-
-    #def resolve_ports(self):
 
     def get_type(self):
         return self._type
