@@ -1,5 +1,5 @@
-from eventsim import SystemSimulator, BehaviorModelExecutor, SysMessage
-from eventsim.definition import *
+from pyevsim import SystemSimulator, BehaviorModelExecutor, SysMessage
+from pyevsim.definition import *
 import datetime
 
 class PEG(BehaviorModelExecutor):

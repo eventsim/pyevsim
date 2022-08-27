@@ -1,7 +1,7 @@
 import setuptools
 
 setuptools.setup(
-    name="eventsim",
+    name="pyevsim",
     version="1.0.0",
     license='MIT',
     author="Changbeom Choi",

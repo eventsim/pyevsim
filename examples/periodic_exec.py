@@ -1,4 +1,4 @@
-from eventsim import BehaviorModelExecutor, SystemSimulator, Infinite
+from pyevsim import BehaviorModelExecutor, SystemSimulator, Infinite
 import datetime
 
 class PEx(BehaviorModelExecutor):
