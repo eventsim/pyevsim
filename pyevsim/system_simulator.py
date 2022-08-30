@@ -1,5 +1,5 @@
 from .system_executor import SysExecutor
-from .definition import SingletonType
+from .definition import SingletonType, Infinite
 from threading import Thread
 
 from .termination_manager import TerminationManager
