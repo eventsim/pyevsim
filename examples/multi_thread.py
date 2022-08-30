@@ -12,11 +12,11 @@ class PEx(BehaviorModelExecutor):
 
     def ext_trans(self,port, msg):
         if port == "start":
-            print(f"[Gen][IN]: {datetime.datetime.now()}")
+            print(f"[{self.get_name()}][IN]: {datetime.datetime.now()}")
             self._cur_state = "Generate"
 
     def output(self):
-        print(f"[Gen][OUT]: {datetime.datetime.now()}")
+        print(f"[{self.get_name()}][OUT]: {datetime.datetime.now()}")
         return None
         
     def int_trans(self):
@@ -26,13 +26,21 @@ class PEx(BehaviorModelExecutor):
 
 ss = SystemSimulator()
 
+# First Engine
 ss.register_engine("first", "REAL_TIME", 1)
 ss.get_engine("first").insert_input_port("start")
-gen = PEx(0, Infinite, "Gen", "first")
+gen = PEx(0, Infinite, "FGen", "first")
 ss.get_engine("first").register_entity(gen)
-
 ss.get_engine("first").coupling_relation(None, "start", gen, "start")
-
 ss.get_engine("first").insert_external_event("start", None)
-ss.get_engine("first").simulate()
 
+# Second Engine
+ss.register_engine("second", "REAL_TIME", 1)
+ss.get_engine("second").insert_input_port("start")
+gen = PEx(0, Infinite, "SGen", "second")
+ss.get_engine("second").register_entity(gen)
+ss.get_engine("second").coupling_relation(None, "start", gen, "start")
+ss.get_engine("second").insert_external_event("start", None)
+
+ss.exec_non_block_simulate(["first", "second"])
+ss.block()
