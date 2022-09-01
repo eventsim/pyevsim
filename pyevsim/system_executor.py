@@ -12,7 +12,7 @@ import threading
 
 from .definition import *
 from .default_message_catcher import *
-from .behavior_model import *
+#from .behavior_model import *
 from .system_object import *
 
 import functools
@@ -21,13 +21,13 @@ import math
 
 from .termination_manager import TerminationManager
 
-class SysExecutor(SysObject, BehaviorModel):
+class SysExecutor(SysObject, CoreModel):
 
     EXTERNAL_SRC = "SRC"
     EXTERNAL_DST = "DST"
 
     def __init__(self, _time_step, _sim_name='default', _sim_mode='VIRTUAL_TIME'):
-        BehaviorModel.__init__(self, _sim_name)
+        CoreModel.__init__(self, _sim_name, ModelType.UTILITY)
         self.lock = threading.Lock()
         self.thread_flag = False
 

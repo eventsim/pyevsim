@@ -37,8 +37,9 @@ class SimulationMode(Enum):
 
 # 2020.01.20 added by cbchoi
 class ModelType(Enum):
-    BEHAVIORAL    = 0
+    BEHAVIORAL  = 0
     STRUCTURAL  = 1
+    UTILITY     = 2
 
 class CoreModel(object):
     def __init__(self, _name, _type):
@@ -58,12 +59,14 @@ class CoreModel(object):
         return self._name
 
     def insert_input_port(self, port):
+        setattr(self, port, port)
         self._input_ports.append(port)
 
     def retrieve_input_ports(self):
         return self._input_ports
 
     def insert_output_port(self, port):
+        setattr(self, port, port)
         self._output_ports.append(port)
 
     def retrieve_output_ports(self):
