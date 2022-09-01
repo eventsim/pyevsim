@@ -20,7 +20,6 @@ class BehaviorModel(CoreModel):
     def update_state(self, name, deadline="inf"):
         # TODO: Exception Handling
         # TA < 0
-        # Duplicated State
         self._states[name] = float(deadline)
 
     def retrieve_states(self):
