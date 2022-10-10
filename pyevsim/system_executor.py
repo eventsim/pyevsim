@@ -123,7 +123,7 @@ class SysExecutor(SysObject, CoreModel):
                 del self.waiting_obj_map[key]
 
                 # select object that requested minimum time
-                self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
+                self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: (bm.get_req_time(), bm.get_obj_id())))
 
     def destroy_entity(self):
         if len(self.active_obj_map.keys()) != 0:
@@ -281,7 +281,7 @@ class SysExecutor(SysObject, CoreModel):
             tuple_obj.set_req_time(req_t)
             self.min_schedule_item.append(tuple_obj)
 
-            self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
+            self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: (bm.get_req_time(), bm.get_obj_id())))
             
             tuple_obj = self.min_schedule_item.popleft()
 
@@ -374,7 +374,7 @@ class SysExecutor(SysObject, CoreModel):
             heapq.heappop(self.input_event_queue)
             self.lock.release()
             
-        self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: bm.get_req_time()))
+        self.min_schedule_item = deque(sorted(self.min_schedule_item, key=lambda bm: (bm.get_req_time(), bm.get_obj_id())))
         pass
 
     def handle_external_output_event(self):
