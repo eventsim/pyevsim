@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="pyevsim",
-    version="1.1.1",
+    version="1.1.2",
     license='MIT',
     author="Changbeom Choi",
     author_email="me@cbchoi.info",
