@@ -105,7 +105,8 @@ class SysExecutor(SysObject, CoreModel):
                 for key in port_del_lst:
                     del(self.port_map[key])
 
-                self.min_schedule_item.remove(agent)
+                if agent in self.min_schedule_item:
+                    self.min_schedule_item.remove(agent)
                 print("deleted")
                 del(self.model_map[model_name])
         else:
@@ -186,9 +187,10 @@ class SysExecutor(SysObject, CoreModel):
 
     def output_handling(self, obj, msg):
         if msg is not None:
-            if type(msg) == list:
-                for ith_msg in msg:
-                    self.single_output_handling(obj, copy.deepcopy(ith_msg))
+            if isinstance(msg[1], list):
+                for ith_msg in msg[1]:
+                    pair = (msg[0], ith_msg)
+                    self.single_output_handling(obj, copy.deepcopy(pair))
             else:
                 self.single_output_handling(obj, msg)
                 
