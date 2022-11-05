@@ -96,13 +96,23 @@ class SysExecutor(SysObject, CoreModel):
             for agent in self.model_map[model_name]:
                 del(self.active_obj_map[agent.get_obj_id()])
                 
-                port_del_lst = []
+                port_del_map = {}
                 for key, value in self.port_map.items():
+                    # Sender
+                    if key[0] == agent:
+                        port_del_map[key] = True
+                    
+                    # Receiver
                     if value:
-                        if value[0][0] is agent:
-                            port_del_lst.append(key)
+                        del_items = []
+                        for src_port in value:
+                            src, _ = src_port
+                            if src == agent:
+                                del_items.append(src_port)
+                        for item in del_items:
+                            value.remove(item)
 
-                for key in port_del_lst:
+                for key in port_del_map.keys():
                     del(self.port_map[key])
 
                 if agent in self.min_schedule_item:
@@ -136,16 +146,29 @@ class SysExecutor(SysObject, CoreModel):
             for agent in delete_lst:
                 del(self.active_obj_map[agent.get_obj_id()])
                 
-                port_del_lst = []
+                port_del_map = {}
                 for key, value in self.port_map.items():
-                    #print(value)
+                    # Sender
+                    if key[0] == agent:
+                        port_del_map[key] = True
+                    
+                    # Receiver
                     if value:
-                        if value[0][0] is agent:
-                            port_del_lst.append(key)
+                        del_items = []
+                        for src_port in value:
+                            src, _ = src_port
+                            if src == agent:
+                                del_items.append(src_port)
+                        for item in del_items:
+                            value.remove(item)
 
-                for key in port_del_lst:
+                for key in port_del_map.keys():
                     del(self.port_map[key])
-                self.min_schedule_item.remove(agent)
+
+                if agent in self.min_schedule_item:
+                    self.min_schedule_item.remove(agent)
+                print("deleted")
+                del(self.model_map[model_name])
 
     def coupling_relation(self, src_obj, out_port, dst_obj, in_port):
         if (src_obj, out_port) in self.port_map:
