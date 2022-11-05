@@ -167,9 +167,10 @@ class SysExecutor(SysObject, CoreModel):
 
                 if agent in self.min_schedule_item:
                     self.min_schedule_item.remove(agent)
-                print("deleted")
-                del(self.model_map[model_name])
-
+            
+            self.port_map = {}
+            self.model_map = {}
+            
     def coupling_relation(self, src_obj, out_port, dst_obj, in_port):
         if (src_obj, out_port) in self.port_map:
             self.port_map[(src_obj, out_port)].append((dst_obj, in_port))
