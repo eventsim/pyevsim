@@ -159,8 +159,9 @@ types of example:
    multi: \t Mupltiple simulation engine interacts with each other
 """
 import sys
-
-if sys.argv[1] == "relay":
+if len(sys.argv) != 2:
+    print(usage)
+elif sys.argv[1] == "relay":
     f = open("example_replay.py", "w")
     f.write(relay_example)
     pass
@@ -169,7 +170,7 @@ elif sys.argv[1] == "multi":
     f.write(multi_example)
     pass
 elif sys.argv[1] == "periodic":
-    f = open("example_multi_thread.py", "w")
+    f = open("example_periodic.py", "w")
     f.write(periodic_example)
     pass
 else:
